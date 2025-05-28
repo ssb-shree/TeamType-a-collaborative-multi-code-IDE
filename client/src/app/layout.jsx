@@ -28,7 +28,6 @@ export const metadata = {
     "code synchronization",
   ].join(", "),
   author: "Shree Bavachikar",
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   charset: "UTF-8",
 };
@@ -37,7 +36,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
       >
         {children}
       </body>
