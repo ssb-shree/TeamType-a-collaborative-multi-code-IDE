@@ -56,7 +56,7 @@ export const GlareCard = ({ children, className = "" }) => {
     >
       <div
         ref={cardRef}
-        className={` w-[50%] md:w-full h-[70%] rounded-2xl bg-slate-900 text-white p-6 shadow-lg transition-transform ease-in-out ${className}`}
+        className={` w-full text-wrap md:w-full h-[70%] rounded-2xl bg-slate-900 text-white p-6 shadow-lg transition-transform ease-in-out ${className}`}
         style={{ transformStyle: "preserve-3d" }}
       >
         {children}
