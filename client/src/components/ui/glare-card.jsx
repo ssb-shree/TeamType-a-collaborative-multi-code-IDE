@@ -50,7 +50,7 @@ export const GlareCard = ({ children, className = "" }) => {
 
   return (
     <div
-      className={`w-[320px] aspect-[17/21] transition-transform duration-300 ease-in-out [perspective:600px]`}
+      className={`w-[320px] mt-3 aspect-[17/21] transition-transform duration-300 ease-in-out [perspective:600px]`}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     >
