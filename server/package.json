@@ -1,0 +1,36 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "The backend for TeamType, a collaborative multi-code IDE. It handles real-time communication, session management, and code synchronization between users using WebSockets. t also persists code state in a database, allowing users to seamlessly continue coding where they left off. ",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE.git"
+  },
+  "keywords": [
+    "realtime-multicode-ide",
+    "collaborative-code-editor",
+    "multiuser-code-ide",
+    "live-coding-platform",
+    "web-based-collab-ide",
+    "code-editor-realtime",
+    "collab-ide-suite",
+    "sync-multi-lang-ide",
+    "rtc-collab-editor",
+    "live-multiuser-editor",
+    "node",
+    "express"
+  ],
+  "author": "Shree Bavachikar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE/issues"
+  },
+  "homepage": "https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE#readme"
+}
