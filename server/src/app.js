@@ -1,9 +1,24 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const app = express();
 
+import dotenv from "dotenv";
+dotenv.config();
+console.log(process.env.STATUS);
+
 // global middlewares
+app.use(
+  cors({
+    origin:
+      process.env.STATUS === "DEV"
+        ? "http://localhost:3000"
+        : process.env.CLIENT_URL,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
