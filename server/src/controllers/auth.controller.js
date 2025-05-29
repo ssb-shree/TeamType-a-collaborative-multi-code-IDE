@@ -43,7 +43,6 @@ const registerUser = async (req, res) => {
     }
 
     // if above all checks passed create a new user
-
     const newUser = await User.create({ name, email, password: hashPassword });
 
     if (!newUser) {
@@ -51,6 +50,16 @@ const registerUser = async (req, res) => {
         .status(500)
         .json({ message: "Failed to create new account", success: false });
     } else {
+      // give the user a cookie
+      const token = jwt.sign(
+        { ID: newUser._id, name: newUser.name },
+        process.env.JWT_SECRET,
+        { expiresIn: "10d" }
+      );
+      res.cookie("jwt", token, {
+        httpOnly: true,
+        maxAge: 10 * 24 * 60 * 60 * 1000,
+      });
       return res
         .status(200)
         .json({ message: "Account Created Successfully", succes: true });
