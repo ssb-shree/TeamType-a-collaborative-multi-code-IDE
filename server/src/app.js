@@ -8,16 +8,18 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // global middlewares
-app.use(
-  cors({
-    origin:
-      process.env.STATUS === "DEV"
-        ? "http://localhost:3000"
-        : process.env.CLIENT_URL,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin:
+    process.env.STATUS === "DEV"
+      ? "http://localhost:3000"
+      : process.env.CLIENT_URL,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+};
+
+app.options("*", cors(corsOptions));
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
