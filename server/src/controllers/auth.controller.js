@@ -66,8 +66,8 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
   try {
+    const { email, password } = req.body;
     // check for any empty fields
     if (!email || !password) {
       return res
