@@ -6,8 +6,8 @@ import { User } from "../models/user.model.js";
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/;
 
 const registerUser = async (req, res) => {
-  const { email, name, password } = req.body;
   try {
+    const { email, name, password } = req.body;
     // check for any empty fields
     if (!name || !email || !password) {
       return res
