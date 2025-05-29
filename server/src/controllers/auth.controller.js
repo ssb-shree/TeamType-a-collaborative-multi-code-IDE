@@ -126,11 +126,7 @@ const loginUser = async (req, res) => {
       httpOnly: true,
       maxAge: 10 * 24 * 60 * 60 * 1000,
       secure: true,
-      sameSite: "None",
-      domain:
-        process.env.STATUS === "DEV"
-          ? "http://localhost:3000"
-          : process.env.CLIENT_URL,
+      sameSite: "none",
     });
 
     // send the final response
