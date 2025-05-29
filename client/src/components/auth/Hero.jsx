@@ -27,7 +27,9 @@ const Hero = () => {
     <section className="bg-[#1e293b] w-full h-screen flex flex-col items-center text-slate-300">
       <div className="w-full h-full flex flex-col items-center justify-center">
         <div className="flex flex-col w-full items-center mb-4">
-          <h1 className={`${pressStart2P.className} ${styles.title} text-6xl`}>
+          <h1
+            className={`${pressStart2P.className} ${styles.title} text-2xl md:text-6xl`}
+          >
             {pathName == "/login" ? "Login" : "Register"}
           </h1>
           <p

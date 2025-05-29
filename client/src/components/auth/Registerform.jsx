@@ -50,8 +50,8 @@ const Registerform = () => {
               placeholder="••••••••"
             />
           </div>
-          <button type="submit" className={`${styles.button}`}>
-            Log In
+          <button type="button" className={`${styles.button}`}>
+            Register
           </button>
           <span className="">
             Already have an account ?{" "}
