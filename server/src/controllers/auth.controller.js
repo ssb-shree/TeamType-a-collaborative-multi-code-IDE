@@ -123,7 +123,7 @@ const loginUser = async (req, res) => {
     });
 
     res.cookie("jwt", token, {
-      httpOnly: true,
+      // httpOnly: true,
       maxAge: 10 * 24 * 60 * 60 * 1000,
       secure: true,
       sameSite: "none",
