@@ -62,7 +62,7 @@ const registerUser = async (req, res) => {
       });
       return res
         .status(200)
-        .json({ message: "Account Created Successfully", succes: true });
+        .json({ message: "Account Created Successfully", success: true });
     }
 
     //
