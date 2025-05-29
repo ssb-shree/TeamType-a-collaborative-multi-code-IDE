@@ -22,7 +22,6 @@ const spaceGrotesk = Space_Grotesk({
 
 const Hero = () => {
   const pathName = usePathname();
-  console.log(pathName);
   return (
     <section className="bg-[#1e293b] w-full h-screen flex flex-col items-center text-slate-300">
       <div className="w-full h-full flex flex-col items-center justify-center">
