@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { GlareCard } from "../ui/glare-card";
 
@@ -13,8 +13,19 @@ const poppins = Poppins({
 
 import styles from "./Hero.module.css";
 import { Footer } from "./Footer";
+import toast from "react-hot-toast";
+import axiosInstance from "@/services/axios";
 
 const Features = () => {
+  useEffect(async () => {
+    await axiosInstance.get("/ping");
+    toast(
+      "The Backend of the website is deployed on a free tier.\n\n The Service Provider may shut down the machine for inactivity.\n Be patient while interacting with the Api",
+      {
+        duration: 8000,
+      }
+    );
+  }, []);
   return (
     <section className="h-full w-full bg-[#1e293b] flex flex-col">
       <div className="h-[80%] w-full shadow-sm shadow-cyan-400 flex flex-col justify-start items-center gap-y-10 pt-10">
