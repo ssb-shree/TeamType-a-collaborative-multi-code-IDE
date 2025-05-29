@@ -59,6 +59,8 @@ const registerUser = async (req, res) => {
       res.cookie("jwt", token, {
         httpOnly: true,
         maxAge: 10 * 24 * 60 * 60 * 1000,
+        secure: true,
+        sameSite: "None",
       });
       return res
         .status(200)
@@ -123,6 +125,8 @@ const loginUser = async (req, res) => {
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: 10 * 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: "None",
     });
 
     // send the final response
