@@ -1,4 +1,4 @@
-import mongoose, { mongo, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const projectSchema = new Schema(
   {
@@ -12,6 +12,11 @@ const projectSchema = new Schema(
     },
     code: {
       typeof: String,
+      required: true,
+    },
+    createdBY: {
+      typeof: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
   },
