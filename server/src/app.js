@@ -6,7 +6,6 @@ const app = express();
 
 import dotenv from "dotenv";
 dotenv.config();
-console.log(process.env.STATUS);
 
 // global middlewares
 app.use(
