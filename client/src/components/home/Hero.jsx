@@ -4,7 +4,6 @@ import styles from "./Hero.module.css";
 import ParticlesBackground from "./ParticalBG";
 
 import { Press_Start_2P, Space_Grotesk } from "next/font/google";
-
 import Link from "next/link";
 
 const pressStart2P = Press_Start_2P({

@@ -1,6 +1,7 @@
 import Features from "@/components/home/Features";
-import Hero from "@/components/home/Hero";
+
 import React from "react";
+import Hero from "@/components/home/Hero";
 
 export const metadata = {
   title: "TeamType – Real-Time Collaborative Code Editor",
