@@ -21,6 +21,7 @@ export const checkAuth = async (req, res, next) => {
 
     // attaching the info to req obj
     req.user = decodedUser;
+    req.token = token;
 
     // call the next middleware
     next();
