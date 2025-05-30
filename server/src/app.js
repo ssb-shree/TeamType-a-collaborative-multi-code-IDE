@@ -28,8 +28,10 @@ app.get("/ping", (req, res) => res.json({ message: "pong" }).status(200));
 
 // route imports below
 import AuthRouter from "./routes/auth.routes.js";
+import ProjectRouter from "./routes/project.routes.js";
 
 // route declaration belw
 app.use("/api/v1/auth", AuthRouter);
+app.use("/api/v1/projects", ProjectRouter);
 
 export default app;

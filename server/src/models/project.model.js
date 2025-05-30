@@ -3,19 +3,18 @@ import mongoose, { Schema } from "mongoose";
 const projectSchema = new Schema(
   {
     name: {
-      typeof: String,
+      type: String,
       required: true,
     },
     lang: {
-      typeof: String,
-      required: true,
+      type: String,
+      enum: ["python", "javascript", "java", "go", "bash", "cpp", "c"],
     },
     code: {
-      typeof: String,
-      required: true,
+      type: String,
     },
-    createdBY: {
-      typeof: mongoose.Schema.Types.ObjectId,
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
@@ -23,4 +22,4 @@ const projectSchema = new Schema(
   { timestamps: true }
 );
 
-const Project = mongoose.model("Project", projectSchema);
+export const Project = mongoose.model("Project", projectSchema);
