@@ -2,8 +2,12 @@
 import axiosInstance from "@/services/axios";
 import React, { useEffect, useState } from "react";
 
+import Cookies from "js-cookie";
+
+import { useAuthStore } from "@/store/user";
+
 const myProjects = () => {
-  const [isAuth, setAuth] = useState(false);
+  const { authData, setAuthData, clearAuthData } = useAuthStore();
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -12,16 +16,20 @@ const myProjects = () => {
           {},
           { withCredentials: true }
         );
-        console.log(res);
-        setAuth(true);
+        console.log("res data => ", res.data);
+        Cookies.set("jwt2", res.data.data.token);
+        console.log(Cookies.get("jwt2"));
       } catch (error) {
         console.log(error);
-        setAuth(false);
       }
     };
     checkAuth();
   }, []);
-  return <div>{isAuth ? "U are Authenticated" : "U are not autheticated"}</div>;
+  return (
+    <div>
+      {authData.auth ? "U are Authenticated" : "U are not autheticated"}
+    </div>
+  );
 };
 
 export default myProjects;

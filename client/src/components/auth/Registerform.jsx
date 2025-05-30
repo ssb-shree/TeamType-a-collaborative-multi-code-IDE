@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import styles from "./Hero.module.css";
 import Link from "next/link";
 
+import { Cookies } from "js-cookie";
+
 import { useRouter } from "next/navigation";
 
 import { toast } from "react-hot-toast";

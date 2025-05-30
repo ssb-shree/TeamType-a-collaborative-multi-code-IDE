@@ -54,7 +54,7 @@ const Loginform = () => {
         toastMessage(true, response.data.message || "Failed to Register")
       );
       if (response.data.success) {
-        // router.push("/my-projects");
+        router.push("/my-projects");
       }
     } catch (error) {
       toast.custom(
