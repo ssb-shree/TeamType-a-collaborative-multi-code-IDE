@@ -3,9 +3,8 @@ import { useAuthStore } from "@/store/user";
 
 import Cookies from "js-cookie";
 
-const { authData, setAuthData, clearAuthData } = useAuthStore();
-
 export const checkAuth = async () => {
+  const { authData, setAuthData, clearAuthData } = useAuthStore();
   // get the cookie from the browser
   const token = Cookies.get("token");
   const res = await axiosInstance.post(
