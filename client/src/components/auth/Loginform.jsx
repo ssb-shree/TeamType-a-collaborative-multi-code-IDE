@@ -9,6 +9,8 @@ import { toastMessage } from "@/services/toastMessage";
 
 import axiosInstance from "@/services/axios";
 
+import Cookies from "js-cookie";
+
 const Loginform = () => {
   const router = useRouter();
   const [userData, setUserData] = useState({
@@ -54,6 +56,7 @@ const Loginform = () => {
         toastMessage(true, response.data.message || "Failed to Register")
       );
       if (response.data.success) {
+        Cookies.set("token", response.data.token);
         router.push("/my-projects");
       }
     } catch (error) {

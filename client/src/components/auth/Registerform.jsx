@@ -3,14 +3,14 @@ import React, { useState } from "react";
 import styles from "./Hero.module.css";
 import Link from "next/link";
 
-import { Cookies } from "js-cookie";
-
 import { useRouter } from "next/navigation";
 
 import { toast } from "react-hot-toast";
 import { toastMessage } from "@/services/toastMessage";
 
 import axiosInstance from "@/services/axios";
+
+import Cookies from "js-cookie";
 
 const Registerform = () => {
   const router = useRouter();
@@ -58,6 +58,7 @@ const Registerform = () => {
       );
 
       if (response.data.success) {
+        Cookies.set("token", response.data.token);
         router.push("/my-projects");
       }
     } catch (error) {

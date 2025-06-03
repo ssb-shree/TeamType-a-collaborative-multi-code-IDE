@@ -166,3 +166,26 @@
     }
   }
 }
+
+/* SPINNER  */
+@keyframes gradientSlide {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-spinner {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #22d3ee);
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradientSlide 5s ease infinite;
+  filter: drop-shadow(0 0 10px #38bdf8aa);
+}

@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useEffect } from "react";
-
 import { GlareCard } from "../ui/glare-card";
 
 import { Poppins } from "next/font/google";
@@ -16,7 +14,7 @@ import { Footer } from "./Footer";
 
 const Features = () => {
   return (
-    <section className="h-full w-full bg-[#1e293b] flex flex-col">
+    <section className="h-auto w-full bg-[#1e293b] flex flex-col">
       <div className="h-[80%] w-full shadow-sm shadow-cyan-400 flex flex-col justify-start items-center gap-y-10 pt-10">
         <h1
           className={`${poppins.className} ${styles.title} text-purple-500 text-2xl md:text-6xl`}

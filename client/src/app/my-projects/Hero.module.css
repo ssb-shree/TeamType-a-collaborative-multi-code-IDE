@@ -1,0 +1,78 @@
+.hero {
+  background: radial-gradient(circle at 20% 40%, #1e3a8a 0%, #0f172a 80%);
+}
+
+.title {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #22d3ee);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradientSlide 5s ease infinite;
+  filter: drop-shadow(0 0 10px #38bdf8aa);
+}
+
+@keyframes gradientSlide {
+  0% {
+    background-position: 0%;
+  }
+  50% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: 0%;
+  }
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.button {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 18px 42px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 22px rgba(56, 189, 248, 0.45);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
+  text-decoration: none;
+}
+
+.button:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 14px 36px rgba(56, 189, 248, 0.75);
+  filter: drop-shadow(0 0 6px #38bdf8);
+}
+
+.button::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 180%;
+  height: 180%;
+  background: radial-gradient(circle at center, #38bdf8aa 0%, transparent 70%);
+  opacity: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.button:hover::before {
+  opacity: 1;
+  animation: pulseGlow 2.8s infinite;
+}
