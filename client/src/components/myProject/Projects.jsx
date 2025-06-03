@@ -35,7 +35,7 @@ const Project = ({ name }) => {
     getAllProjects();
   }, []);
   return (
-    <div className="bg-[#1e293b] w-full h-auto px-5 h-[40%] text-slate-300">
+    <div className="bg-[#1e293b] w-full h-auto px-5 text-slate-300">
       <Spinner size="large" show={loading} />
       <div className=" border-b flex flex-row gap-x-10 justify-center items-center py-1 text-lg pt-5">
         <span>
