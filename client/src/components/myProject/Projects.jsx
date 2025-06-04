@@ -49,14 +49,16 @@ const Project = ({ name }) => {
           placeholder="Search By Project Name"
         />
       </div>
-      <div className="grid grid-rows-none md:grid-cols-4 flex-wrap gap-x-5 gap-y-0 mt-5 ">
+      <div className="grid grid-rows-none md:grid-cols-4 flex-wrap gap-x-5 gap-y-0 mt-5">
         <ProjectCards
           className=""
           projectsArray={projects}
           name={name}
           searchInput={searchInput}
         />
-        <AddProjectCard />
+        <div className="rounded-2xl bg-slate-900 text-white p-6 shadow-lg h-40 m-3 flex items-center justify-center">
+          <AddProjectCard />
+        </div>
       </div>
     </div>
   );
