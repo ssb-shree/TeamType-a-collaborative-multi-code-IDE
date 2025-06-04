@@ -150,7 +150,6 @@ const loginUser = async (req, res) => {
 const authUSer = async (req, res) => {
   try {
     const { ID } = req.user;
-    const token = req.token;
 
     // find the user
     const findUser = await User.findById(ID);
@@ -162,7 +161,7 @@ const authUSer = async (req, res) => {
       res.status(200).json({
         message: "user authenticated",
         success: true,
-        data: { ID, name: findUser.name, token },
+        data: { ID, name: findUser.name },
       });
     }
   } catch (error) {

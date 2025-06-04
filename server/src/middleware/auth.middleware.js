@@ -1,10 +1,15 @@
 import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
 
 export const checkAuth = async (req, res, next) => {
   try {
     // check if user has the token
-    const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
+    const cookieToken = req.cookies.jwt || req.cookies.token;
+    const headerToken = req.headers.authorization?.startsWith("Bearer ")
+      ? req.headers.authorization.split(" ")[1]
+      : null;
+
+    const token = cookieToken || headerToken;
+
     if (!token) {
       return res
         .status(409)
@@ -21,7 +26,6 @@ export const checkAuth = async (req, res, next) => {
 
     // attaching the info to req obj
     req.user = decodedUser;
-    req.token = token;
 
     // call the next middleware
     next();
