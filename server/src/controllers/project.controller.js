@@ -50,6 +50,35 @@ const getAllProjects = async (req, res) => {
   }
 };
 
+const getProjectInfo = async (req, res) => {
+  try {
+    const { projectID } = req.params;
+    const project = await Project.findById(projectID).populate({
+      path: "createdBy",
+      select: "-password -email",
+    });
+
+    if (!project) {
+      res
+        .status(404)
+        .json({ message: "Failed to find your project", success: false });
+    }
+
+    return res.status(200).json({
+      message: "Projects found successfully",
+      success: true,
+      project,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to complete your request", success: false });
+    console.log(
+      `Error in get  Project Info controller ${error.message || error}`
+    );
+  }
+};
+
 const updateProject = async (req, res) => {
   try {
     const { ID } = req.user;
@@ -125,4 +154,10 @@ const deleteProject = async (req, res) => {
   }
 };
 
-export { createProject, getAllProjects, updateProject, deleteProject };
+export {
+  createProject,
+  getAllProjects,
+  updateProject,
+  deleteProject,
+  getProjectInfo,
+};

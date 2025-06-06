@@ -3,6 +3,7 @@ import toast from "react-hot-toast";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import styles from "./Hero.module.css";
 import { toastMessage } from "@/services/toastMessage";
@@ -10,15 +11,46 @@ import { toastMessage } from "@/services/toastMessage";
 import axiosInstance from "@/services/axios";
 
 import Cookies from "js-cookie";
+import { useAuthStore } from "@/store/user";
+import { useProjectStore } from "@/store/project";
 
 const Loginform = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const redirectUrl = searchParams.get("redirect_url");
+
   const [userData, setUserData] = useState({
     email: "",
     password: "",
   });
 
+  const { authData, setAuthData, clearAuthData } = useAuthStore();
+  const { setProjectData } = useProjectStore();
+
   const [loading, setLoading] = useState(false);
+
+  const getProjectInfo = async () => {
+    try {
+      const projectID = redirectUrl.split("/editor/")[1];
+
+      const token = Cookies.get("token");
+      const res = await axiosInstance.get(`/api/v1/projects/${projectID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+
+      setProjectData(res.data.project);
+
+      toast.custom(toastMessage(true, "Project Fetched"));
+      router.push(redirectUrl);
+    } catch (error) {
+      toast.custom(toastMessage(false, "Failed to Load Project Details"));
+      console.log(error.message || error);
+    }
+  };
 
   const submitForm = async () => {
     const { email, password } = userData;
@@ -57,16 +89,29 @@ const Loginform = () => {
       );
       if (response.data.success) {
         Cookies.set("token", response.data.token);
-        router.push("/my-projects");
+
+        const { name, ID } = response.data.userData;
+
+        setAuthData({
+          name,
+          userID: ID,
+          token: response.data.token,
+          auth: response.data.success,
+        });
+
+        redirectUrl ? getProjectInfo() : router.push("/my-projects");
       }
     } catch (error) {
+      console.log(error);
       toast.custom(
-        toastMessage(false, error.response.data.message || "Failed to Register")
+        toastMessage(false, error.response.data.message || "Failed to Login")
       );
+      clearAuthData();
     } finally {
       setLoading((prev) => !prev);
     }
   };
+
   return (
     <div className="flex items-center justify-center hero px-4 bg-[#0f172]">
       <div className="w-screen bg-opacity-5 backdrop-blur-md p-8 rounded-xl shadow-lg max-w-md shadow-cyan-300">

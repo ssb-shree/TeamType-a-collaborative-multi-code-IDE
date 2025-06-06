@@ -24,16 +24,20 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
 });
 
+import { useProjectStore } from "@/store/project";
+
 export function DropDownOptions({ projectID }) {
+  const { setProjectData } = useProjectStore();
+
   const deleteProject = async () => {
     try {
       const token = Cookies.get("token");
-      console.log("token from drop down options => ", token);
       await axiosInstance.delete("/api/v1/projects", {
         data: { projectID },
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        withCredentials: true,
       });
 
       toast.custom(toastMessage(true, "Project Deleted"));
@@ -42,6 +46,26 @@ export function DropDownOptions({ projectID }) {
       toast.custom(toastMessage(false, "Failed to Delete Projects"));
     }
   };
+
+  const getProjectInfo = async () => {
+    try {
+      const token = Cookies.get("token");
+      const res = await axiosInstance.get(`/api/v1/projects/${projectID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
+
+      setProjectData(res.data.project);
+
+      toast.custom(toastMessage(true, "Project Fetched"));
+    } catch (error) {
+      toast.custom(toastMessage(false, "Failed to Load Project Details"));
+      console.log(error.message || error);
+    }
+  };
+
   return (
     <DropdownMenu className="outline-none hover:outline-none hover:bg-transparent">
       <DropdownMenuTrigger asChild>
@@ -56,7 +80,9 @@ export function DropDownOptions({ projectID }) {
       >
         <DropdownMenuSeparator className={`border-slate-500`} />
         <DropdownMenuItem className="focus:bg-transparent focus:text-cyan-300">
-          <Link href={`editor/${projectID}`}>Open in Editor</Link>
+          <Link onClick={getProjectInfo} href={`editor/${projectID}`}>
+            Open in Editor
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem
           onSelect={(e) => {

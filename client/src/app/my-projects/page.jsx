@@ -42,6 +42,7 @@ const myProjects = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            withCredentials: true,
           }
         );
         const { ID, name } = res.data.data;
@@ -49,7 +50,8 @@ const myProjects = () => {
           clearAuthData();
           router.push("/login");
         }
-        setAuthData({ name, ID, auth: res.data.success });
+        setAuthData({ name, userID: ID, auth: res.data.success });
+        Cookies.set;
         setLoading(false);
       } catch (error) {
         clearAuthData();

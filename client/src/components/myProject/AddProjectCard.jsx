@@ -44,6 +44,7 @@ const AddProjectCard = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 
@@ -53,7 +54,6 @@ const AddProjectCard = () => {
       toast.custom(toastMessage(false, "Failed to Create Projects"));
     }
   };
-  console.log(data);
   return (
     <Dialog>
       <form>
@@ -97,10 +97,14 @@ const AddProjectCard = () => {
                     placeholder="Select The Language"
                   />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={`opacity-70 bg-slate-900 text-white`}>
                   <SelectGroup>
                     {Languages.map((lang) => (
-                      <SelectItem className="bg-transparent" value={lang}>
+                      <SelectItem
+                        id={lang}
+                        className="bg-transparent"
+                        value={lang}
+                      >
                         {lang}
                       </SelectItem>
                     ))}
@@ -111,9 +115,15 @@ const AddProjectCard = () => {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button className={`bg-slate-800`}>Cancel</Button>
+              <Button type="button" className={`bg-red-600 hover:bg-red-800`}>
+                Cancel
+              </Button>
             </DialogClose>
-            <Button onClick={addProject} type="button">
+            <Button
+              onClick={addProject}
+              type="button"
+              className={`bg-cyan-600 hover:bg-cyan-800 `}
+            >
               Create Project
             </Button>
           </DialogFooter>

@@ -24,6 +24,7 @@ const Project = ({ name }) => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         });
         setProjects(res.data.projects);
       } catch (error) {

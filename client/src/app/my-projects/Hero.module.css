@@ -2,6 +2,15 @@
   background: radial-gradient(circle at 20% 40%, #1e3a8a 0%, #0f172a 80%);
 }
 
+.card {
+  background: linear-gradient(90deg, #0ea5e9, #38bdf8, #22d3ee);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: gradientSlide 5s ease infinite;
+  filter: drop-shadow(0 0 10px #38bdf8aa);
+}
+
 .title {
   background: linear-gradient(90deg, #0ea5e9, #38bdf8, #22d3ee);
   background-clip: text;

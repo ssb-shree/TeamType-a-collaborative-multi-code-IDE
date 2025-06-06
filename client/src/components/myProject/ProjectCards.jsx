@@ -30,10 +30,13 @@ const ProjectCards = ({ projectsArray, name, searchInput }) => {
     ? array.map((project) => (
         <div
           key={project._id}
-          className="rounded-2xl bg-slate-900 text-white p-6 shadow-lg h-40 m-3"
+          className={`rounded-2xl  text-white p-6 shadow-lg h-40 m-3  bg-slate-900`}
         >
           <Link href={`editor/${project._id}`}>
-            <div className="w-full  flex flex-row " id={project._id}>
+            <div
+              className={`w-full  flex flex-row ${styles.title} `}
+              id={project._id}
+            >
               <div>
                 <Image
                   className="bg-[#1A3268] rounded-2xl p-2"

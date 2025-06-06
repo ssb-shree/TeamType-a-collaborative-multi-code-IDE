@@ -162,6 +162,7 @@ const authUSer = async (req, res) => {
         message: "user authenticated",
         success: true,
         data: { ID, name: findUser.name },
+        token: req.cookies.jwt,
       });
     }
   } catch (error) {
