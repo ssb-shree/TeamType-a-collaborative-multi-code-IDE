@@ -17,6 +17,10 @@ const event = {
   enterRoom: "enter-project-room",
   roomNotFound: "notFound-project-room",
   joinedRoom: "joined-project-room",
+  leftRoomed: "user-left-room",
+  codeUpdate: "project-code-updated",
+  codeSync: "project-code-sync",
+  endRoom: "project-session-ended",
   endRoom: "project-session-ended",
   sendMessage: "send-chat-message",
   receiveMessage: "receive-chat-message",
@@ -68,6 +72,7 @@ io.on("connection", (socket) => {
         io.to(projectID).emit(event.joinedRoom, {
           updatedClients: clients,
           socketID: socket.id,
+          name: name,
         });
       };
 
@@ -116,6 +121,14 @@ io.on("connection", (socket) => {
     } catch (error) {}
   });
 
+  socket.on(event.codeUpdate, ({ code, projectID }) => {
+    io.in(projectID).emit(event.codeUpdate, { code });
+  });
+
+  socket.on(event.codeSync, ({ code, socketID }) => {
+    io.to(socketID).emit(event.codeUpdate, { code });
+  });
+
   socket.on("disconnecting", () => {
     const user = userDetailsMap[socket.id];
     if (!user) return;
@@ -132,7 +145,7 @@ io.on("connection", (socket) => {
       const clients = getAllConnectedClients(projectID);
 
       // Notify all users in the room
-      io.to(projectID).emit("USER_DISCONNECTED", {
+      io.to(projectID).emit(event.leftRoomed, {
         socketID: socket.id,
         updatedClients: clients,
       });
