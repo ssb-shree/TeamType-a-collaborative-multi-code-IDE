@@ -58,8 +58,6 @@ export function DropDownOptions({ projectID }) {
       });
 
       setProjectData(res.data.project);
-
-      toast.custom(toastMessage(true, "Project Fetched"));
     } catch (error) {
       toast.custom(toastMessage(false, "Failed to Load Project Details"));
       console.log(error.message || error);

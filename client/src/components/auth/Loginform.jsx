@@ -43,8 +43,6 @@ const Loginform = () => {
       });
 
       setProjectData(res.data.project);
-
-      toast.custom(toastMessage(true, "Project Fetched"));
       router.push(redirectUrl);
     } catch (error) {
       toast.custom(toastMessage(false, "Failed to Load Project Details"));
