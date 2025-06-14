@@ -51,7 +51,7 @@ const myProjects = () => {
           router.push("/login");
         }
         setAuthData({ name, userID: ID, auth: res.data.success });
-        Cookies.set;
+        Cookies.set("token", res.data.token);
         setLoading(false);
       } catch (error) {
         clearAuthData();

@@ -14,6 +14,7 @@ import { initSocket } from "@/services/socket";
 import { event } from "@/services/socketEvents";
 
 import toast from "react-hot-toast";
+import { toastMessage } from "@/services/toastMessage";
 
 const Editorpage = () => {
   const [loading, setLoading] = useState(true);
@@ -22,7 +23,6 @@ const Editorpage = () => {
   const { projectData } = useProjectStore();
 
   const socketRef = useRef(null);
-  const socketInitializedRef = useRef(false);
 
   const router = useRouter();
   const params = useParams();
@@ -33,65 +33,77 @@ const Editorpage = () => {
     if (!authData.auth) {
       router.push(`/login?redirect_url=/editor/${projectID}`);
     }
-  }, []);
+  }, [authData.auth, projectID, router]);
 
   useEffect(() => {
-    const initSocketConnection = async () => {
-      if (socketInitializedRef.current) return;
-      // below we will establish our socket connection
-      socketRef.current = await initSocket();
+    if (!authData.auth || !projectID) return;
 
-      socketInitializedRef.current = true;
+    const handleSocketError = (err) => {
+      console.error("Socket error:", err.message || err);
+      toast.custom(
+        toastMessage(false, "Connection failed - trying to reconnect...")
+      );
+    };
 
-      // handling basic connection errors which might occur
-      socketRef.current.on("connect-failed", (err) => handleSocketError(err));
-      socketRef.current.on("connect-error", (err) => handleSocketError(err));
+    let socket;
 
-      const handleSocketError = (err) => {
-        console.log("socket error -> ", err.message || err);
-        toast.error("failed to connect");
-        navigate("/");
+    (async () => {
+      if (!socketRef.current) {
+        socketRef.current = await initSocket();
+      }
+
+      socket = socketRef.current;
+
+      const emitData = {
+        projectID,
+        userID: authData.userID,
+        name: authData.name,
+        role:
+          authData.userID === projectData?.createdBy._id ? "owner" : "guest",
       };
 
-      console.log(projectData);
-      // emit create room only for owners
-      if (authData.userID === projectData?.createdBy._id) {
-        console.log("owner");
-        socketRef.current.emit(event.startRoom, {
-          ownerId: authData.userID,
-          projectID,
-          userID: authData.userID,
-          name: authData.name,
-        });
-      } else {
-        console.log("guest");
-        socketRef.current.emit(event.enterRoom, {
-          userID: authData.userID,
-          projectID,
-          name: authData.name,
-        });
-      }
-    };
+      console.log("emitting enterRoom with", emitData);
+      socket.emit(event.enterRoom, emitData);
 
-    if (authData.auth) {
-      initSocketConnection();
-    }
+      socket.on("connect-failed", handleSocketError);
+      socket.on("connect-error", handleSocketError);
 
-    // clean up function below
+      socket.on(event.roomNotFound, () => {
+        toast.custom(toastMessage(false, "404 Room Not Found"));
+        router.push("/my-projects");
+      });
+
+      socket.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason);
+        if (reason === "io server disconnect") {
+          socket.connect(); // Auto-reconnect
+        }
+      });
+    })();
+
+    setLoading(false);
+
+    // cleanup
     return () => {
       if (socketRef.current) {
+        socketRef.current.off("connect-failed", handleSocketError);
+        socketRef.current.off("connect-error", handleSocketError);
         socketRef.current.disconnect();
         socketRef.current = null;
-        socketInitializedRef.current = false;
       }
-      // socketRef?.current.off(events.JOIN);
-      // socketRef?.current.off(events.JOINED);
-      // socketRef?.current.off(events.DISCONNECTED);
-      // socketRef?.current.dissconnect();
     };
-  }, [socketRef, socketInitializedRef]);
+  }, [authData.auth, projectID]);
 
-  return loading ? <LoadingPage /> : <Editor classname="bg-slate-900" />;
+  return loading ? (
+    <LoadingPage />
+  ) : (
+    <Editor
+      socket={socketRef.current}
+      authData={authData}
+      projectData={projectData}
+      classname="bg-slate-900"
+    />
+  );
 };
 
 export default Editorpage;

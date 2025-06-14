@@ -14,35 +14,150 @@ export const io = new Server(server, {
 });
 
 const event = {
-  startRoom: "start-project-room",
   enterRoom: "enter-project-room",
+  roomNotFound: "notFound-project-room",
+  joinedRoom: "joined-project-room",
+  endRoom: "project-session-ended",
+  sendMessage: "send-chat-message",
+  receiveMessage: "receive-chat-message",
 };
 
-// temp DB to store user details
+// temp DB to keep records of live users and rooms
 const userDetailsMap = {};
+const activeProjectRooms = new Set();
 
+// functions to fetch the list of all users in userDetailsMap
 const getAllConnectedClients = (projectID) => {
   return Array.from(io.sockets.adapter.rooms.get(projectID) || []).map(
     (socketID) => {
-      return { socketID, username: userSocketMap[socketID] };
+      return { socketID, userDetails: userDetailsMap[socketID] };
     }
   );
 };
 
 io.on("connection", (socket) => {
-  // user tries to create a room {owner}
-  socket.on("start-project-room", (data) => {
-    const { ownerId, userID, projectID, name } = data;
+  socket.on(event.enterRoom, (data) => {
+    try {
+      // destructing the expected data from the user payload
+      const { userID, projectID, role, name } = data;
 
-    // adding the owner to the temp DB
-    userDetailsMap[socket.id] = { name, userID, ownerId };
+      console.log("data obj => ", data);
+      // throw error for empty fields
+      if (!userID || !projectID || !role || !name) {
+        throw new Error(
+          `Empty Fields found in enter-project-room ${
+            (userID, projectID, role)
+          }`
+        );
+      }
 
-    // below line will create a room
-    socket.join(projectID);
+      // add the user to live user records
+      userDetailsMap[socket.id] = { userID, projectID, role, name };
 
-    console.log("user map => ", userDetailsMap);
+      const handleJoinRoom = () => {
+        socket.join(projectID);
+
+        // make the entry in active rooms SET
+        activeProjectRooms.add(projectID);
+
+        // fetch the updated client list
+
+        const clients = getAllConnectedClients(projectID);
+
+        // emit an emmit with the updated data
+        io.to(projectID).emit(event.joinedRoom, {
+          updatedClients: clients,
+          socketID: socket.id,
+        });
+      };
+
+      const findRoom =
+        io.sockets.adapter.rooms.has(projectID) ||
+        activeProjectRooms.has(projectID);
+
+      // handling the guest flow
+      if (role === "guest") {
+        if (!findRoom) {
+          console.log(`Guest failed to join - Room ${projectID} not found`);
+          return socket.emit("room-not-found", {
+            message: "Room not available",
+            success: false,
+          });
+        }
+        handleJoinRoom();
+        console.log(`Guest ${name} joined room ${projectID}`);
+        return;
+      }
+
+      if (role == "owner") {
+        console.log(`Owner ${name} creating room ${projectID}`);
+        handleJoinRoom();
+        return;
+      }
+
+      // DEBUG PURPOSES
+      console.log("Room Status:", {
+        projectID,
+        socketRole: role,
+        adapterRooms: Array.from(io.sockets.adapter.rooms.keys()),
+        trackedRooms: Array.from(activeProjectRooms),
+        currentSocketRooms: Array.from(socket.rooms),
+      });
+    } catch (error) {
+      console.log("Error in enter-project-room ", error.message || error);
+      socket.disconnect(); // forcing the user to disconnect
+    }
   });
 
-  // user tries to join an existing roomm {guest}
-  socket.on("enter-project-room", (data) => console.log(data));
+  socket.on(event.sendMessage, (data) => {
+    try {
+      const { name, message, projectID } = data;
+      io.to(projectID).emit(event.receiveMessage, { name, message });
+    } catch (error) {}
+  });
+
+  socket.on("disconnecting", () => {
+    const user = userDetailsMap[socket.id];
+    if (!user) return;
+
+    const { role, projectID, name } = user;
+
+    // For guests
+    if (role === "guest") {
+      console.log(`Guest ${name} disconnected`);
+      // Remove user from the map
+      delete userDetailsMap[socket.id];
+
+      // Get remaining clients in the room
+      const clients = getAllConnectedClients(projectID);
+
+      // Notify all users in the room
+      io.to(projectID).emit("USER_DISCONNECTED", {
+        socketID: socket.id,
+        updatedClients: clients,
+      });
+
+      return;
+    }
+
+    // For owner
+    if (role === "owner") {
+      console.log(`Owner ${name} disconnected, ending session.`);
+
+      // Notify all guests the session has ended
+      io.to(projectID).emit(event.endRoom, {
+        message: "Owner left. Session ended.",
+      });
+
+      // Clean all users from this projectID
+      Object.keys(userDetailsMap).forEach((socketID) => {
+        if (userDetailsMap[socketID].projectID === projectID) {
+          delete userDetailsMap[socketID];
+        }
+      });
+
+      // Delete project from active rooms
+      activeProjectRooms.delete(projectID);
+    }
+  });
 });
