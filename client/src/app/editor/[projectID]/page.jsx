@@ -18,6 +18,7 @@ import { toastMessage } from "@/services/toastMessage";
 
 const Editorpage = () => {
   const [loading, setLoading] = useState(true);
+  const [projectError, setProjectEror] = useState(false);
 
   const { authData, setAuthData, clearAuthData } = useAuthStore();
   const { projectData } = useProjectStore();
@@ -62,13 +63,14 @@ const Editorpage = () => {
           authData.userID === projectData?.createdBy._id ? "owner" : "guest",
       };
 
-      console.log("emitting enterRoom with", emitData);
       socket.emit(event.enterRoom, emitData);
 
       socket.on("connect-failed", handleSocketError);
       socket.on("connect-error", handleSocketError);
 
       socket.on(event.roomNotFound, () => {
+        console.log("read the not found event");
+        setProjectEror(true);
         toast.custom(toastMessage(false, "404 Room Not Found"));
         router.push("/my-projects");
       });
@@ -94,13 +96,14 @@ const Editorpage = () => {
     };
   }, [authData.auth, projectID]);
 
-  return loading ? (
+  return loading || projectError ? (
     <LoadingPage />
   ) : (
     <Editor
       socket={socketRef.current}
       authData={authData}
       projectData={projectData}
+      projectID={projectID}
       classname="bg-slate-900"
     />
   );
