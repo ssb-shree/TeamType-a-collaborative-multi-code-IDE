@@ -26,8 +26,11 @@ const spaceGrotesk = Space_Grotesk({
 
 import { useProjectStore } from "@/store/project";
 
+import { useCodeStore } from "@/store/code";
+
 export function DropDownOptions({ projectID }) {
   const { setProjectData } = useProjectStore();
+  const { codeData, setCodeData } = useCodeStore();
 
   const deleteProject = async () => {
     try {
@@ -58,6 +61,7 @@ export function DropDownOptions({ projectID }) {
       });
 
       setProjectData(res.data.project);
+      setCodeData({ ...codeData, code: res.data.project.code });
     } catch (error) {
       toast.custom(toastMessage(false, "Failed to Load Project Details"));
       console.log(error.message || error);
