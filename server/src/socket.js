@@ -11,15 +11,23 @@ export const io = new Server(server, {
       process.env.STATUS !== "DEV" ? process.env.CLIENT_URL : "localhost:3000",
     credentials: true,
   },
+  pingInterval: 25000, // Send ping every 25 seconds
+  pingTimeout: 5000, // Wait 5 seconds for pong before considering dead
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 120000, // 2 minutes
+    skipMiddlewares: true,
+  },
 });
 
 const event = {
   enterRoom: "enter-project-room",
   roomNotFound: "notFound-project-room",
-  joinedRoom: "joined-project-room",
+  projectID: "projectID-project-room",
+  joinedRoom: "user-joined-room",
   leftRoomed: "user-left-room",
   codeUpdate: "project-code-updated",
   codeSync: "project-code-sync",
+  initGuestEditor: "initialise-guest-editor",
   endRoom: "project-session-ended",
   endRoom: "project-session-ended",
   sendMessage: "send-chat-message",
@@ -29,148 +37,93 @@ const event = {
 // temp DB to keep records of live users and rooms
 const userDetailsMap = {};
 const activeProjectRooms = new Set();
+const recentCodeState = {};
 
 // functions to fetch the list of all users in userDetailsMap
 const getAllConnectedClients = (projectID) => {
   return Array.from(io.sockets.adapter.rooms.get(projectID) || []).map(
     (socketID) => {
+      console.log("users socket id", socketID);
+      console.log("details using that socked id ", userDetailsMap[socketID]);
       return { socketID, userDetails: userDetailsMap[socketID] };
     }
   );
 };
 
 io.on("connection", (socket) => {
-  socket.on(event.enterRoom, (data) => {
-    try {
-      // destructing the expected data from the user payload
-      const { userID, projectID, role, name } = data;
+  socket.on(event.enterRoom, ({ projectID, name, projectData, role }) => {
+    if (role === "owner") {
+      const { code, lang } = projectData;
+      // save the initial state on the server
+      recentCodeState[projectID] = { code, lang };
 
-      console.log("data obj => ", data);
-      // throw error for empty fields
-      if (!userID || !projectID || !role || !name) {
-        throw new Error(
-          `Empty Fields found in enter-project-room ${
-            (userID, projectID, role)
-          }`
-        );
-      }
+      // saving the user details on server
+      userDetailsMap[socket.id] = { name, role, projectID };
 
-      // add the user to live user records
-      userDetailsMap[socket.id] = { userID, projectID, role, name };
+      // letting the owner create the room
+      socket.join(projectID);
+      activeProjectRooms.add(projectID);
 
-      const handleJoinRoom = () => {
-        socket.join(projectID);
-
-        // make the entry in active rooms SET
-        activeProjectRooms.add(projectID);
-
-        // fetch the updated client list
-
-        const clients = getAllConnectedClients(projectID);
-
-        // emit an emmit with the updated data
-        io.to(projectID).emit(event.joinedRoom, {
-          updatedClients: clients,
+      // get the client list
+      const clients = getAllConnectedClients(projectID);
+      console.log("owner clients list => ", clients);
+      clients.forEach(({ socketID }) => {
+        io.to(socketID).emit(event.joinedRoom, {
+          updatedClientsList: clients,
+          newUser: name,
           socketID: socket.id,
-          name: name,
+          newJoinersRole: role,
         });
-      };
+      });
+    }
 
+    if (role == "guest") {
       const findRoom =
         io.sockets.adapter.rooms.has(projectID) ||
         activeProjectRooms.has(projectID);
 
-      // handling the guest flow
-      if (role === "guest") {
-        if (!findRoom) {
-          console.log(`Guest failed to join - Room ${projectID} not found`);
-          return socket.emit("room-not-found", {
-            message: "Room not available",
-            success: false,
-          });
-        }
-        handleJoinRoom();
-        console.log(`Guest ${name} joined room ${projectID}`);
-        return;
+      if (!findRoom) {
+        return socket.emit(event.roomNotFound, {
+          message: "room does not exist",
+        });
       }
 
-      if (role == "owner") {
-        console.log(`Owner ${name} creating room ${projectID}`);
-        handleJoinRoom();
-        return;
-      }
+      // saving the user details on server
+      userDetailsMap[socket.id] = { name, role, projectID };
 
-      // DEBUG PURPOSES
-      console.log("Room Status:", {
-        projectID,
-        socketRole: role,
-        adapterRooms: Array.from(io.sockets.adapter.rooms.keys()),
-        trackedRooms: Array.from(activeProjectRooms),
-        currentSocketRooms: Array.from(socket.rooms),
-      });
-    } catch (error) {
-      console.log("Error in enter-project-room ", error.message || error);
-      socket.disconnect(); // forcing the user to disconnect
-    }
-  });
+      // letting the guest join the room
+      socket.join(projectID);
 
-  socket.on(event.sendMessage, (data) => {
-    try {
-      const { name, message, projectID } = data;
-      io.to(projectID).emit(event.receiveMessage, { name, message });
-    } catch (error) {}
-  });
-
-  socket.on(event.codeUpdate, ({ code, projectID }) => {
-    io.in(projectID).emit(event.codeUpdate, { code });
-  });
-
-  socket.on(event.codeSync, ({ code, socketID }) => {
-    io.to(socketID).emit(event.codeUpdate, { code });
-  });
-
-  socket.on("disconnecting", () => {
-    const user = userDetailsMap[socket.id];
-    if (!user) return;
-
-    const { role, projectID, name } = user;
-
-    // For guests
-    if (role === "guest") {
-      console.log(`Guest ${name} disconnected`);
-      // Remove user from the map
-      delete userDetailsMap[socket.id];
-
-      // Get remaining clients in the room
+      // get the client list
       const clients = getAllConnectedClients(projectID);
 
-      // Notify all users in the room
-      io.to(projectID).emit(event.leftRoomed, {
-        socketID: socket.id,
-        updatedClients: clients,
+      // notify the connected users that someone has projectID
+      console.log("guest clients list => ", clients);
+      clients.forEach(({ socketID }) => {
+        io.to(socketID).emit(event.joinedRoom, {
+          updatedClientsList: clients,
+          newUser: name,
+          socketID: socket.id,
+          newJoinersRole: role,
+        });
       });
 
-      return;
+      // initialize the code editor of the guest with the recentCodeState
+      io.to(socket.id).emit(event.initGuestEditor, {
+        syncGuestCode: recentCodeState[projectID],
+      });
     }
+  });
 
-    // For owner
-    if (role === "owner") {
-      console.log(`Owner ${name} disconnected, ending session.`);
+  socket.on(event.codeUpdate, ({ updatedCode, projectID }) => {
+    // update the global cpode state of project first
+    recentCodeState[projectID].code = updatedCode;
 
-      // Notify all guests the session has ended
-      io.to(projectID).emit(event.endRoom, {
-        message: "Owner left. Session ended.",
-      });
+    console.log("updated code state => ", recentCodeState[projectID].code);
 
-      // Clean all users from this projectID
-      Object.keys(userDetailsMap).forEach((socketID) => {
-        if (userDetailsMap[socketID].projectID === projectID) {
-          delete userDetailsMap[socketID];
-        }
-      });
-
-      // Delete project from active rooms
-      activeProjectRooms.delete(projectID);
-    }
+    // emit the update to clients in the room
+    socket.in(projectID).emit(event.codeUpdate, {
+      updatedCode: recentCodeState[projectID].code,
+    });
   });
 });
