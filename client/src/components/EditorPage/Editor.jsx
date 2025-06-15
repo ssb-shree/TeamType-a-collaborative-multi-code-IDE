@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import CodeEditor from "./CodeEditor";
 import ChatBlock from "./chatBlock";
 
@@ -16,12 +16,10 @@ import { toastMessage } from "@/services/toastMessage";
 const Editor = ({ socket, authData, projectData, projectID }) => {
   const { code, lang } = projectData;
 
+  const codeRef = useRef("");
+
   useEffect(() => {
     if (!socket) return;
-
-    console.log(socket);
-    socket.on(event.leftRoom, (data) => console.log(data));
-
     socket.on(event.endRoom, ({ message }) =>
       toast.custom(toastMessage(false, message))
     );
@@ -47,7 +45,11 @@ const Editor = ({ socket, authData, projectData, projectID }) => {
         <ResizablePanel defaultSize={100} className="h-[100%] w-[40%]">
           <ResizablePanelGroup direction="vertical">
             <ResizablePanel className="h-[60%]">
-              <InputOutputBox />
+              <InputOutputBox
+                socket={socket}
+                projectData={projectData}
+                code={codeRef.current}
+              />
             </ResizablePanel>
             <ResizableHandle />
             <ResizablePanel className="h-[40%] w-full">

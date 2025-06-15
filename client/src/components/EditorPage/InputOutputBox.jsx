@@ -1,16 +1,30 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Play, Terminal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 
-const InputOutputBox = () => {
-  const outputRef = useRef("");
-  const inputRef = useRef("");
+import { useCodeStore } from "@/store/code";
+
+const InputOutputBox = ({ socket, projectData }) => {
+  const [inpuState, setInputState] = useState("");
+  const [outputState, setOutputState] = useState(
+    "// OutPut will be shown here "
+  );
+
+  const { codeData, setCodeData } = useCodeStore();
+
+  useEffect(() => {
+    socket;
+  }, [socket]);
+
+  const runCode = async () => {
+    console.log(codeData);
+  };
 
   return (
     <div className="bg-slate-900 p-2 rounded-xl w-full h-full shadow-lg flex">
       <Tabs
-        defaultValue="output"
+        defaultValue="input"
         className={`h-full w-full flex justify-between`}
       >
         <div className="w-full flex justify-between">
@@ -30,6 +44,7 @@ const InputOutputBox = () => {
             </TabsTrigger>
           </TabsList>
           <button
+            onClick={runCode}
             type="button"
             className="bg-slate-800 border px-1 border-slate-700 rounded-t-md hover:bg-slate-950 hover:text-cyan-300"
           >
@@ -42,7 +57,17 @@ const InputOutputBox = () => {
           className="bg-black text-green-400 p-4 font-mono rounded-b-md border border-t-0 border-slate-700 overflow-auto"
         >
           <div className="h-full w-full">
-            <Textarea className={"h-full resize-none min-h-full"} />
+            <Textarea
+              className={
+                "h-full resize-none min-h-full placeholder:text-green-400"
+              }
+              placeholder={`One input per line`}
+              onChange={(e) => {
+                setInputState(e.target.value);
+                setCodeData({ ...codeData, inputs: e.target.value });
+              }}
+              value={inpuState}
+            />
           </div>
         </TabsContent>
 
@@ -51,7 +76,7 @@ const InputOutputBox = () => {
           className="bg-black text-green-400 p-4 font-mono rounded-b-md border border-t-0 border-slate-700 overflow-auto"
         >
           <div>
-            <p>Piston Output here</p>
+            <p>{outputState}</p>
           </div>
         </TabsContent>
       </Tabs>

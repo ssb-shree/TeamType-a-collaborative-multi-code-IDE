@@ -15,6 +15,8 @@ import { java } from "@codemirror/lang-java";
 import { cpp } from "@codemirror/lang-cpp";
 import { python } from "@codemirror/lang-python";
 
+import { useCodeStore } from "@/store/code";
+
 function getLanguageExtension(lang) {
   switch (lang.toLowerCase()) {
     case "js":
@@ -47,50 +49,54 @@ const CodeEditor = ({
   const role =
     authData.userID === projectData?.createdBy._id ? "owner" : "guest";
 
-  console.log(role);
-  const hasSyncedRef = useRef(role === "owner");
-
-  console.log(hasSyncedRef.current);
-
   const [newCode, setNewCode] = useState(() => {
-    if (role === "owner") {
-      return code?.trim() === "" ? "Welcome to TeamType!" : code;
+    if (role == "owner") {
+      return code;
     } else {
-      return ""; // guest will wait for sync
+      return "// Waiting for the code to be synced";
     }
   });
 
-  const handleCodeUpdate = (value) => {
-    if (!hasSyncedRef.current) return;
-    socket.emit(event.codeUpdate, { code: value, projectID });
-  };
+  const clientListRef = useRef([]);
+  const hasCodeSynced = useRef(role === "owner" ? true : false);
+  const syncFlag = useRef(role === "owner" ? true : false);
 
-  const codeSyncUpdate = (value, socketID) => {
-    socket.emit(event.codeSync, { code: value, projectID, socketID });
-  };
+  const { setCodeData, codeData } = useCodeStore();
+
   useEffect(() => {
     if (!socket) return;
 
-    socket.on(event.joinedRoom, ({ socketID, name }) => {
-      toast.custom(toastMessage(true, `${name} joined`));
-      codeSyncUpdate(newCode, socketID);
-    });
-    socket.on(event.leftRoom, ({ socketID, name }) => {
-      toast.custom(toastMessage(false, `${name} joined`));
-      codeSyncUpdate(newCode, socketID);
+    socket.on(event.joinedRoom, ({ newUser, newJoinersRole, clientList }) => {
+      clientListRef.current = clientList;
+      toast.custom(toastMessage(true, `${newUser} has joined`));
     });
 
-    socket.on(event.codeUpdate, (data) => {
-      hasSyncedRef.current = true;
-      setNewCode(data.code);
+    socket.on(event.initGuestEditor, ({ syncGuestCode }) => {
+      setNewCode(syncGuestCode.code);
+      syncFlag.current = true;
+    });
+
+    syncFlag ? (hasCodeSynced.current = true) : (hasCodeSynced.current = false);
+
+    socket.on(event.codeUpdate, ({ updatedCode }) => {
+      if (!hasCodeSynced || !syncFlag) return;
+      setNewCode(updatedCode);
     });
 
     return () => {
       socket.off(event.joinedRoom);
+      socket.off(event.leftRoom);
       socket.off(event.codeUpdate);
-      socket.off(event.codeSync);
     };
   }, [socket]);
+
+  const handleCodeChange = (value) => {
+    if (!hasCodeSynced || !syncFlag) return;
+    setNewCode(value);
+    setCodeData({ ...codeData, code: value });
+    socket.emit(event.codeUpdate, { updatedCode: value, projectID });
+  };
+
   return (
     <CodeMirror
       className={`h-screen rounded-2xl text-lg`}
@@ -98,10 +104,7 @@ const CodeEditor = ({
       extensions={[getLanguageExtension(lang)]}
       height="100%"
       theme={abyss}
-      onChange={(value) => {
-        setNewCode(value);
-        handleCodeUpdate(value);
-      }}
+      onChange={handleCodeChange}
       basicSetup={{
         lineNumbers: true,
         highlightActiveLine: true,
