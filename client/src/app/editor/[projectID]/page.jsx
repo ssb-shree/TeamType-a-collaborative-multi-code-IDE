@@ -59,6 +59,7 @@ const Editorpage = () => {
         projectID,
         userID: authData.userID,
         name: authData.name,
+        projectData,
         role:
           authData.userID === projectData?.createdBy._id ? "owner" : "guest",
       };
