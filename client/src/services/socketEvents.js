@@ -15,8 +15,9 @@ export const event = {
   endRoom: "project-session-ended",
 
   //below for thw input output blocks
+  setInputOutputstate: "set-initial-input-output",
+  initGuestInputOutput: "initialise-guest-input-output",
   inputUpdate: "project-input-update",
-  inputSync: "project-input-sync",
   outputUpdate: "project-output-update",
 
   // below for chat block component

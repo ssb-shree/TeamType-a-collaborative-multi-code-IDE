@@ -28,6 +28,10 @@ const event = {
   codeUpdate: "project-code-updated",
   codeSync: "project-code-sync",
   initGuestEditor: "initialise-guest-editor",
+  setInputOutputstate: "set-initial-input-output",
+  initGuestInputOutput: "initialise-guest-input-output",
+  inputUpdate: "project-input-update",
+  outputUpdate: "project-output-update",
   endRoom: "project-session-ended",
   endRoom: "project-session-ended",
   sendMessage: "send-chat-message",
@@ -43,8 +47,6 @@ const recentCodeState = {};
 const getAllConnectedClients = (projectID) => {
   return Array.from(io.sockets.adapter.rooms.get(projectID) || []).map(
     (socketID) => {
-      console.log("users socket id", socketID);
-      console.log("details using that socked id ", userDetailsMap[socketID]);
       return { socketID, userDetails: userDetailsMap[socketID] };
     }
   );
@@ -66,7 +68,6 @@ io.on("connection", (socket) => {
 
       // get the client list
       const clients = getAllConnectedClients(projectID);
-      console.log("owner clients list => ", clients);
       clients.forEach(({ socketID }) => {
         io.to(socketID).emit(event.joinedRoom, {
           updatedClientsList: clients,
@@ -98,7 +99,6 @@ io.on("connection", (socket) => {
       const clients = getAllConnectedClients(projectID);
 
       // notify the connected users that someone has projectID
-      console.log("guest clients list => ", clients);
       clients.forEach(({ socketID }) => {
         io.to(socketID).emit(event.joinedRoom, {
           updatedClientsList: clients,
@@ -112,6 +112,11 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit(event.initGuestEditor, {
         syncGuestCode: recentCodeState[projectID],
       });
+
+      // initialize the input output blocks of the guest with recentCodeState
+      io.to(socket.id).emit(event.initGuestInputOutput, {
+        syncGuestCode: recentCodeState[projectID],
+      });
     }
   });
 
@@ -119,11 +124,28 @@ io.on("connection", (socket) => {
     // update the global cpode state of project first
     recentCodeState[projectID].code = updatedCode;
 
-    console.log("updated code state => ", recentCodeState[projectID].code);
-
     // emit the update to clients in the room
     socket.in(projectID).emit(event.codeUpdate, {
       updatedCode: recentCodeState[projectID].code,
+    });
+  });
+
+  socket.on(event.setInputOutputstate, ({ inputs, outputs, projectID }) => {
+    recentCodeState[projectID] = {
+      ...recentCodeState[projectID],
+      inputs,
+      outputs,
+    };
+  });
+
+  socket.on(event.inputUpdate, ({ updateInput, projectID }) => {
+    // update the global state of project first
+    recentCodeState[projectID] = {
+      ...recentCodeState[projectID],
+      inputs: updateInput,
+    };
+    socket.in(projectID).emit(event.inputUpdate, {
+      updateInput: recentCodeState[projectID].inputs,
     });
   });
 });

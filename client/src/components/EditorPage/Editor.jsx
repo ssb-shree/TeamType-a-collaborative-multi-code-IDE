@@ -47,7 +47,9 @@ const Editor = ({ socket, authData, projectData, projectID }) => {
             <ResizablePanel className="h-[60%]">
               <InputOutputBox
                 socket={socket}
+                authData={authData}
                 projectData={projectData}
+                projectID={projectID}
                 code={codeRef.current}
               />
             </ResizablePanel>

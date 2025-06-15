@@ -1,21 +1,72 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React, { useEffect, useRef, useState } from "react";
-import { Play, Terminal } from "lucide-react";
+import { Flag, Play, Terminal } from "lucide-react";
 import { Textarea } from "../ui/textarea";
 
 import { useCodeStore } from "@/store/code";
+import { event } from "@/services/socketEvents";
 
-const InputOutputBox = ({ socket, projectData }) => {
-  const [inpuState, setInputState] = useState("");
-  const [outputState, setOutputState] = useState(
-    "// OutPut will be shown here "
-  );
-
+const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
+  const role =
+    authData.userID === projectData?.createdBy._id ? "owner" : "guest";
   const { codeData, setCodeData } = useCodeStore();
 
+  const [inputState, setInputState] = useState(() => {
+    if (role == "owner") {
+      return codeData.inputs.trim() == ""
+        ? "//One Line Per Input"
+        : codeData.inputs;
+    } else {
+      return "//Waiting For Input to be Synced";
+    }
+  });
+
+  const [outputState, setOutputState] = useState(() => {
+    if (role == "owner") {
+      return "//Output will be shown here";
+    } else {
+      return "//Waiting For Output to be Synced";
+    }
+  });
+
+  const hasSynced = useRef(role === "owner" ? true : false);
+  const syncFlag = useRef(role === "owner" ? true : false);
+
   useEffect(() => {
-    socket;
+    if (!socket) return;
+    if (role == "owner") {
+      socket.emit(event.setInputOutputstate, {
+        inputs: inputState,
+        outputs: outputState,
+        projectID,
+      });
+    }
+
+    socket.on(event.initGuestInputOutput, (data) => {
+      const { inputs, outputs } = data.syncGuestCode;
+      setInputState(inputs);
+      setOutputState(outputs);
+      syncFlag.current = true;
+    });
+
+    syncFlag ? (hasSynced.current = true) : (hasSynced.current = fale);
+
+    socket.on(event.inputUpdate, ({ updateInput }) => {
+      if (!hasSynced || !syncFlag) return;
+      setInputState(updateInput);
+    });
+
+    return () => {
+      socket.off(event.initGuestInputOutput);
+      socket.off(event.inputUpdate);
+    };
   }, [socket]);
+
+  const handleInputChange = (e) => {
+    if (!hasSynced.current || !syncFlag) return;
+    setInputState(e.target.value);
+    socket.emit(event.inputUpdate, { updateInput: e.target.value, projectID });
+  };
 
   const runCode = async () => {
     console.log(codeData);
@@ -62,11 +113,8 @@ const InputOutputBox = ({ socket, projectData }) => {
                 "h-full resize-none min-h-full placeholder:text-green-400"
               }
               placeholder={`One input per line`}
-              onChange={(e) => {
-                setInputState(e.target.value);
-                setCodeData({ ...codeData, inputs: e.target.value });
-              }}
-              value={inpuState}
+              onChange={handleInputChange}
+              value={inputState}
             />
           </div>
         </TabsContent>
