@@ -75,6 +75,7 @@ const CodeEditor = ({
 
     socket.on(event.initGuestEditor, ({ syncGuestCode }) => {
       setNewCode(syncGuestCode.code);
+      setCodeData({ ...codeData, code: syncGuestCode.code, lang });
       syncFlag.current = true;
     });
 

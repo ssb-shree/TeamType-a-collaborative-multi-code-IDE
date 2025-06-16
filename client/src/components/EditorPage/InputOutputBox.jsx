@@ -6,6 +6,8 @@ import { Textarea } from "../ui/textarea";
 import { useCodeStore } from "@/store/code";
 import { event } from "@/services/socketEvents";
 
+import axiosInstance from "@/services/axios";
+
 const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
   const role =
     authData.userID === projectData?.createdBy._id ? "owner" : "guest";
@@ -28,6 +30,8 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
       return "//Waiting For Output to be Synced";
     }
   });
+
+  const [focusValue, setFocusValue] = useState("input");
 
   const hasSynced = useRef(role === "owner" ? true : false);
   const syncFlag = useRef(role === "owner" ? true : false);
@@ -57,6 +61,21 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
       setCodeData({ ...codeData, inputs: updateInput });
     });
 
+    socket.on(event.codeOutput, ({ output, stderr, stdout }) => {
+      console.log({ output, stderr, stdout });
+      if (stderr && stderr.trim()) {
+        setOutputState(stderr.trim());
+      } else if (stdout && stdout.trim()) {
+        setOutputState(stdout.trim());
+      } else if (output && output.trim()) {
+        setOutputState(output.trim());
+      } else {
+        setOutputState("No output.");
+      }
+
+      // show output tab after the output state is filled
+      setFocusValue("output");
+    });
     return () => {
       socket.off(event.initGuestInputOutput);
       socket.off(event.inputUpdate);
@@ -71,13 +90,26 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
   };
 
   const runCode = async () => {
-    console.log(codeData);
+    try {
+      // give thee data to server to run
+      socket.emit(event.runCode, {
+        source: codeData.code,
+        language: codeData.lang,
+        stdin: codeData.inputs,
+        projectID,
+      });
+    } catch (error) {
+      console.error("Error running code:", error);
+      setOutputState("// Failed to execute code");
+    }
   };
 
   return (
     <div className="bg-slate-900 p-2 rounded-xl w-full h-full shadow-lg flex">
       <Tabs
         defaultValue="input"
+        value={focusValue}
+        onValueChange={setFocusValue}
         className={`h-full w-full flex justify-between`}
       >
         <div className="w-full flex justify-between">
@@ -126,7 +158,9 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
           className="bg-black text-green-400 p-4 font-mono rounded-b-md border border-t-0 border-slate-700 overflow-auto"
         >
           <div>
-            <p>{outputState}</p>
+            <pre className="whitespace-pre-wrap font-mono p-2">
+              {outputState}
+            </pre>
           </div>
         </TabsContent>
       </Tabs>

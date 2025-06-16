@@ -19,6 +19,8 @@ export const event = {
   initGuestInputOutput: "initialise-guest-input-output",
   inputUpdate: "project-input-update",
   outputUpdate: "project-output-update",
+  runCode: "project-run-code",
+  codeOutput: "project-code-output",
 
   // below for chat block component
   sendMessage: "send-chat-message",
