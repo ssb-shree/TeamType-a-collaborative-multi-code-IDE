@@ -55,20 +55,51 @@ const getAllConnectedClients = (projectID) => {
 io.on("connection", (socket) => {
   socket.on(event.enterRoom, ({ projectID, name, projectData, role }) => {
     if (role === "owner") {
+      console.log("== ENTERED owner block ==");
+      console.log("Socket ID:", socket.id);
+      console.log("Raw payload:", { name, role, projectID, projectData });
+
+      if (!projectData) {
+        console.error(
+          "[ERROR] projectData is undefined for socket:",
+          socket.id
+        );
+        return;
+      }
+
       const { code, lang } = projectData;
-      // save the initial state on the server
+
+      console.log("[DEBUG] projectData.code:", code);
+      console.log("[DEBUG] projectData.lang:", lang);
+
+      if (!code || !lang) {
+        console.warn("[WARNING] Missing code or lang in projectData");
+      }
+
+      // Save the initial state on the server
       recentCodeState[projectID] = { code, lang };
+      console.log("[DEBUG] Saved initial code state for projectID:", projectID);
 
-      // saving the user details on server
+      // Save user details on the server
       userDetailsMap[socket.id] = { name, role, projectID };
+      console.log("[DEBUG] Saved user details for socket:", socket.id);
 
-      // letting the owner create the room
+      // Letting the owner create the room
       socket.join(projectID);
-      activeProjectRooms.add(projectID);
+      console.log("[DEBUG] Owner joined room:", projectID);
 
-      // get the client list
+      activeProjectRooms.add(projectID);
+      console.log("[DEBUG] Room added to activeProjectRooms");
+
+      // Get the client list
       const clients = getAllConnectedClients(projectID);
+      console.log(
+        "[DEBUG] Clients connected to room:",
+        clients.map((c) => c.socketID)
+      );
+
       clients.forEach(({ socketID }) => {
+        console.log(`[DEBUG] Emitting joinedRoom event to ${socketID}`);
         io.to(socketID).emit(event.joinedRoom, {
           updatedClientsList: clients,
           newUser: name,
