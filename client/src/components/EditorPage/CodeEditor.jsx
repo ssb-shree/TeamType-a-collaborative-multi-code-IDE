@@ -16,6 +16,7 @@ import { cpp } from "@codemirror/lang-cpp";
 import { python } from "@codemirror/lang-python";
 
 import { useCodeStore } from "@/store/code";
+import { useAuthStore } from "@/store/user";
 
 function getLanguageExtension(lang) {
   switch (lang.toLowerCase()) {
@@ -47,6 +48,7 @@ const CodeEditor = ({
   authData,
 }) => {
   const { setCodeData, codeData } = useCodeStore();
+  const { clientListSet } = useAuthStore();
 
   const role =
     authData.userID === projectData?.createdBy._id ? "owner" : "guest";
@@ -68,10 +70,14 @@ const CodeEditor = ({
   useEffect(() => {
     if (!socket) return;
 
-    socket.on(event.joinedRoom, ({ newUser, newJoinersRole, clientList }) => {
-      clientListRef.current = clientList;
-      toast.custom(toastMessage(true, `${newUser} has joined`));
-    });
+    socket.on(
+      event.joinedRoom,
+      ({ newUser, newJoinersRole, updatedClientsList }) => {
+        clientListRef.current = updatedClientsList;
+        clientListSet(updatedClientsList);
+        toast.custom(toastMessage(true, `${newUser} has joined`));
+      }
+    );
 
     socket.on(event.initGuestEditor, ({ syncGuestCode }) => {
       setNewCode(syncGuestCode.code);
