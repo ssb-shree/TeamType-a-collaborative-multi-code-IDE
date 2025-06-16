@@ -3,6 +3,7 @@ import http from "http";
 
 import app from "./app.js";
 import { runCode } from "./piston.js";
+import { disconnect } from "process";
 
 export const server = http.createServer(app);
 
@@ -25,7 +26,7 @@ const event = {
   roomNotFound: "notFound-project-room",
   projectID: "projectID-project-room",
   joinedRoom: "user-joined-room",
-  leftRoomed: "user-left-room",
+  leftRoom: "user-left-room",
   codeUpdate: "project-code-updated",
   codeSync: "project-code-sync",
   initGuestEditor: "initialise-guest-editor",
@@ -198,5 +199,25 @@ io.on("connection", (socket) => {
       stderr: result.run.stderr,
       stdout: result.run.stdout,
     });
+  });
+
+  socket.on("disconnecting", () => {
+    const user = userDetailsMap[socket.id];
+    let { name, role, projectID } = user;
+
+    if (role == "owner") {
+      // let everyone know session is about to end
+      io.to(projectID).emit(event.endRoom, {
+        message: "Session ended by owner.",
+      });
+
+      // remove the temp states saved on server
+      activeProjectRooms.delete(projectID);
+      delete recentCodeState[projectID];
+      delete userDetailsMap[socket.id];
+    } else {
+      io.in(projectID).emit(event.leftRoom, { name });
+      delete userDetailsMap[socket.id];
+    }
   });
 });
