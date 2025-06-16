@@ -3,7 +3,6 @@ import piston from "piston-client";
 const pistonClient = piston();
 
 export const runCode = async (source, language, stdin) => {
-  console.log(language);
   const result = await pistonClient.execute({
     language,
     version: "*",
