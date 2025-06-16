@@ -55,6 +55,7 @@ const getAllConnectedClients = (projectID) => {
 io.on("connection", (socket) => {
   socket.on(event.enterRoom, ({ projectID, name, projectData, role }) => {
     if (role === "owner") {
+      // fucntion only works with this logs on prod so dont tounch it
       console.log("== ENTERED owner block ==");
       console.log("Socket ID:", socket.id);
       console.log("Raw payload:", { name, role, projectID, projectData });
@@ -178,5 +179,11 @@ io.on("connection", (socket) => {
     socket.in(projectID).emit(event.inputUpdate, {
       updateInput: recentCodeState[projectID].inputs,
     });
+  });
+
+  socket.on(event.sendMessage, ({ name, projectID, message }) => {
+    // check if the message is empty
+    if (message.trim() == "") return;
+    io.to(projectID).emit(event.receiveMessage, { name, message });
   });
 });
