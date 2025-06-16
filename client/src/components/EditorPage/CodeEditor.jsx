@@ -53,9 +53,10 @@ const CodeEditor = ({
 
   const [newCode, setNewCode] = useState(() => {
     if (role == "owner") {
-      setCodeData({ ...codeData, code });
+      setCodeData({ ...codeData, code, lang });
       return code;
     } else {
+      setCodeData({ ...codeData, lang });
       return "// Waiting for the code to be synced";
     }
   });
