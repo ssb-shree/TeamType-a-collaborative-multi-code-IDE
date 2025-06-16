@@ -46,11 +46,14 @@ const CodeEditor = ({
   projectData,
   authData,
 }) => {
+  const { setCodeData, codeData } = useCodeStore();
+
   const role =
     authData.userID === projectData?.createdBy._id ? "owner" : "guest";
 
   const [newCode, setNewCode] = useState(() => {
     if (role == "owner") {
+      setCodeData({ ...codeData, code });
       return code;
     } else {
       return "// Waiting for the code to be synced";
@@ -60,8 +63,6 @@ const CodeEditor = ({
   const clientListRef = useRef([]);
   const hasCodeSynced = useRef(role === "owner" ? true : false);
   const syncFlag = useRef(role === "owner" ? true : false);
-
-  const { setCodeData, codeData } = useCodeStore();
 
   useEffect(() => {
     if (!socket) return;

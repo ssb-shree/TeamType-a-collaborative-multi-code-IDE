@@ -54,6 +54,7 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
     socket.on(event.inputUpdate, ({ updateInput }) => {
       if (!hasSynced || !syncFlag) return;
       setInputState(updateInput);
+      setCodeData({ ...codeData, inputs: updateInput });
     });
 
     return () => {
@@ -65,6 +66,7 @@ const InputOutputBox = ({ socket, projectData, authData, projectID }) => {
   const handleInputChange = (e) => {
     if (!hasSynced.current || !syncFlag) return;
     setInputState(e.target.value);
+    setCodeData({ ...codeData, inputs: e.target.value });
     socket.emit(event.inputUpdate, { updateInput: e.target.value, projectID });
   };
 
