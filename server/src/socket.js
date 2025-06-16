@@ -3,7 +3,6 @@ import http from "http";
 
 import app from "./app.js";
 import { runCode } from "./piston.js";
-import { disconnect } from "process";
 
 export const server = http.createServer(app);
 
