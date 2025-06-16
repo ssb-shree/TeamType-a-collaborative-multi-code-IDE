@@ -8,6 +8,7 @@ export const event = {
   // below for code editor component
   joinedRoom: "user-joined-room",
   leftRoom: "user-left-room",
+  endRoom: "project-session-ended",
   initGuestEditor: "initialise-guest-editor",
 
   codeUpdate: "project-code-updated",

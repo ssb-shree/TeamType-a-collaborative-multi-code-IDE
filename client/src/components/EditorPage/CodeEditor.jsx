@@ -17,6 +17,7 @@ import { python } from "@codemirror/lang-python";
 
 import { useCodeStore } from "@/store/code";
 import { useAuthStore } from "@/store/user";
+import { useRouter } from "next/navigation";
 
 function getLanguageExtension(lang) {
   switch (lang.toLowerCase()) {
@@ -49,6 +50,8 @@ const CodeEditor = ({
 }) => {
   const { setCodeData, codeData } = useCodeStore();
   const { clientListSet } = useAuthStore();
+
+  const router = useRouter();
 
   const role =
     authData.userID === projectData?.createdBy._id ? "owner" : "guest";
@@ -90,6 +93,16 @@ const CodeEditor = ({
     socket.on(event.codeUpdate, ({ updatedCode }) => {
       if (!hasCodeSynced || !syncFlag) return;
       setNewCode(updatedCode);
+    });
+
+    socket.on(event.leftRoom, ({ name }) => {
+      toast.custom(toastMessage(false, `${name} has left the room`));
+      router.push("my-projects");
+    });
+
+    socket.on(event.endRoom, () => {
+      toast.custom(toastMessage(false, "session ended"));
+      router.push("my-projects");
     });
 
     return () => {
