@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import http from "http";
 
 import app from "./app.js";
+import { runCode } from "./piston.js";
 
 export const server = http.createServer(app);
 
@@ -32,6 +33,8 @@ const event = {
   initGuestInputOutput: "initialise-guest-input-output",
   inputUpdate: "project-input-update",
   outputUpdate: "project-output-update",
+  runCode: "project-run-code",
+  codeOutput: "project-code-output",
   endRoom: "project-session-ended",
   endRoom: "project-session-ended",
   sendMessage: "send-chat-message",
@@ -185,5 +188,15 @@ io.on("connection", (socket) => {
     // check if the message is empty
     if (message.trim() == "") return;
     io.to(projectID).emit(event.receiveMessage, { name, message });
+  });
+
+  socket.on(event.runCode, async ({ source, language, stdin, projectID }) => {
+    const result = await runCode(source, language, stdin);
+
+    io.to(projectID).emit(event.codeOutput, {
+      output: result.run.output,
+      stderr: result.run.stderr,
+      stdout: result.run.stdout,
+    });
   });
 });
