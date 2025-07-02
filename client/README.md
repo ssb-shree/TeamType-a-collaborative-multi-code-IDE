@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🧑‍💻 TeamType Client
 
-## Getting Started
+A sleek **UI for a real-time collaborative code editor**, where developers can connect, code & test together, and share live sessions — all in one place.
 
-First, run the development server:
+Built with **[Next.js](https://nextjs.org/)** and powered by **[Socket.IO Client](https://socket.io/docs/v4/client-api/)** for real-time magic.
+
+---
+
+## ⚙️ Tech Stack
+
+### 🖥️ Frontend (Client)
+
+- ⚛️ [Next.js 14](https://nextjs.org)
+- 🎨 [Tailwind CSS](https://tailwindcss.com)
+- 🧠 [Zustand](https://github.com/pmndrs/zustand)
+- 🔌 [Socket.IO Client](https://socket.io/docs/v4/client-api/)
+- 🧩 [shadcn/ui](https://ui.shadcn.dev/)
+- ✍🏼 [CodeMirror](https://codemirror.net/)
+- 🌐 [Axios](https://axios-http.com)
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run the project locally:
+
+---
+
+### 🧾 1. Clone the Repository
+
+```bash
+git clone https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE/tree/main/client.git
+cd teamtype-client
+```
+
+> Make sure your [backend server](https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE/tree/main/server.git) is also running.
+
+---
+
+### 📦 2. Install Dependencies
+
+Using **npm**:
+
+```bash
+npm install
+```
+
+Or with **yarn**:
+
+```bash
+yarn install
+```
+
+---
+
+### ⚙️ 3. Set Up Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+NEXT_PUBLIC_STATUS=DEV
+```
+
+> Replace with your deployed backend URL
+
+---
+
+### ▶️ 4. Start the Development Server
+
+Using **npm**:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or with **yarn**:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+yarn dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+### 🌐 5. Open in Browser
 
-To learn more about Next.js, take a look at the following resources:
+Visit [http://localhost:3000](http://localhost:3000) in your browser to start coding collaboratively.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🧠 Features
 
-## Deploy on Vercel
+- 🔁 Real-time collaborative coding via Socket.IO
+- 🧑‍🤝‍🧑 Join or create live coding rooms
+- 📝 Syntax-highlighted code editor (CodeMirror)
+- ⚡ Smooth state management with Zustand
+- 🧪 Modern UI with shadcn/ui and Tailwind CSS
+- 📦 Clean, scalable structure with support for custom features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🛰️ Backend Repository
+
+Make sure you're also running the server from:
+
+🔗 [TeamType Server Repo](https://github.com/ssb-shree/TeamType-a-collaborative-multi-code-IDE/tree/main/server.git)
+
+---
+
+---
+
+## 👨‍💻 Author
+
+Made with ❤️ by **Shree**
+
+- GitHub: [@ssb-shree](https://github.com/ssb-shree)
+- Portfolio: [ssb-is-a.dev](https://ssb.is-a.dev/)
+
+---
+
+## 📄 License
+
+Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
