@@ -1,5 +1,4 @@
 import Features from "@/components/home/Features";
-
 import React from "react";
 import Hero from "@/components/home/Hero";
 
@@ -17,7 +16,7 @@ export const metadata = {
     "developer tools",
     "multi-user coding",
   ].join(", "),
-  authors: [{ name: "Shree Bavachikar", url: "https://yourportfolio.com" }],
+  authors: [{ name: "Shree Bavachikar", url: "https://ssb.is-a.dev/" }],
   creator: "Shree Bavachikar",
   openGraph: {
     title: "TeamType – Real-Time Collaborative Code Editor",
@@ -27,7 +26,7 @@ export const metadata = {
     siteName: "TeamType",
     images: [
       {
-        url: "https://postimg.cc/zLCznZ0s", // optional
+        url: "https://images.unsplash.com/photo-1751467987837-0079a2030053",
         width: 1200,
         height: 630,
         alt: "TeamType collaborative IDE preview",
@@ -41,10 +40,12 @@ export const metadata = {
     title: "TeamType – Real-Time Collaborative IDE",
     description:
       "Join TeamType to experience seamless real-time coding with your team.",
-    images: ["https://postimg.cc/zLCznZ0s"], // optional
+    images: ["https://images.unsplash.com/photo-1751467987837-0079a2030053"], // optional
     creator: "@sde.shree", // optional
   },
-  metadataBase: new URL("https://yourdomain.com"),
+  metadataBase: new URL(
+    "https://team-type-a-collaborative-multi-cod.vercel.app"
+  ),
   robots: "index, follow",
   manifest: "/site.webmanifest", // optional
 };
