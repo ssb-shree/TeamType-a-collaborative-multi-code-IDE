@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import { useEffect } from "react";
 import styles from "./Hero.module.css";
 import ParticlesBackground from "./ParticalBG";
 
 import { Press_Start_2P, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -17,6 +18,12 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 const Hero = () => {
+  useEffect(() => {
+    alert(`
+    Backend is deployed on a free tier plan
+    Service Provide may shut down the machine for inactivity
+    If you want to watch the site function Contact Me!`);
+  }, []);
   return (
     <section
       className={`relative h-[96%] w-full overflow-hidden ${styles.hero}`}
