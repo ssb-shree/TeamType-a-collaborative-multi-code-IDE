@@ -13,7 +13,7 @@ export const metadata = {
     siteName: "TeamType",
     images: [
       {
-        url: "https://postimg.cc/zLCznZ0s",
+        url: "https://images.unsplash.com/photo-1751467987837-0079a2030053",
         width: 1200,
         height: 630,
         alt: "TeamType Login page",
@@ -25,7 +25,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Register | TeamType",
     description: "Sign up and start coding together with your team.",
-    images: ["https://postimg.cc/zLCznZ0s"],
+    images: ["https://images.unsplash.com/photo-1751467987837-0079a2030053"],
   },
 };
 
